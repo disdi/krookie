@@ -1,0 +1,8 @@
+1. Add a short text file to initramfs image
+
+Use initramfs.list - pay special attention to host paths which are relative to
+kernel source toplevel directory!
+
+2. Use generate initramfs.sh to build initramfs
+
+3. Run the virtual machine and verify new file’s presence and contents

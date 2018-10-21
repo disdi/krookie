@@ -1,0 +1,14 @@
+file /busybox-armv7r ../workshops/initramfs/busybox-armv7r 0755 0 0
+dir /sbin 0755 0 0
+dir /proc 0755 0 0
+dir /sys 0755 0 0
+dir /bin 0755 0 0
+dir /usr 0755 0 0
+dir /usr/sbin 0755 0 0
+dir /usr/bin 0755 0 0
+dir /etc 0755 0 0
+dir /etc/init.d 0755 0 0
+file /etc/inittab ../workshops/initramfs/inittab 0755 0 0
+file /etc/init.d/rcS ../workshops/initramfs/rcS 0755 0 0
+file /syscall ../workshops/initramfs/syscall 0755 0 0
+file /strace ../workshops/initramfs/strace 0755 0 0

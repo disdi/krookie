@@ -1,0 +1,19 @@
+1. Patch the kernel with the provided patches
+
+In kernel source directory:
+
+patch -p1 < PATH_TO_WORKSHOPS/kernel-patches/0001-kbuild....
+patch -p1 < PATH_TO_WORKSHOPS/kernel-patches/0001-Revert....
+patch -p1 < PATH_TO_WORKSHOPS/kernel-patches/0001-krg....
+
+2. Configure & cross-compile the kernel for vexpress
+
+In kernel source directory:
+
+make ARCH=arm vexpress_defconfig
+make -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
+
+3. Analyze the vexpress-run.sh script
+
+4. Run emulated machine in qemu with the script
+	^A-X to exit qemu

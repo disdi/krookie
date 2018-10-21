@@ -1,0 +1,20 @@
+1. Analyze the userspace program (syscall.c) and discover what it does
+
+2. Analyze arch/arm/kernel/sys_arm.c in kernel sources and fill the blanks
+as instructed inline
+
+3. Rebuild the kernel
+
+Remember about ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
+
+4. Try running ./syscall in the virtual machine
+
+	./syscall -p <number> to put element into buffer
+	./syscall -g to get element from buffer
+	You might need to put either into background with &
+	(e.g. while getting from empty buffer)
+
+When trying to get from empty buffer the process will sleep waiting
+on the semaphore. If you don't put the process into background you
+have no other shell available to put the element into buffer.
+Converse situation happens when trying to put into full buffer.

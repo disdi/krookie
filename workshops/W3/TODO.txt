@@ -1,0 +1,36 @@
+1. Write, compile and deploy (initramfs!) a module which does (almost) nothing
+
+	Module’s init shall output a welcome string
+	Module’s exit shall output a goodbye string
+
+Use the W3 directory and a Makefile there.
+
+Module boilerplate code:
+------------------------
+
+#include <linux/init.h>
+#include <linux/module.h>
+
+static int hello_init(void)
+{
+	return 0;
+}
+module_init(hello_init);
+
+static void hello_exit(void)
+{
+}
+module_exit(hello_exit);
+
+MODULE_LICENSE("GPL");
+
+Methods to output to console:
+-----------------------------
+
+printk(KERN_WARNING "Warning level\n");
+
+pr_warning("Warning level\n");
+
+Remember about ARCH=arm and CROSS_COMPILE=arm-linux-gnueabi-
+
+2. Load/unload the module in the virtual machine

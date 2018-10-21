@@ -1,0 +1,5 @@
+1. Find container of definition in 4.18 and try understanding it
+
+2. If more than one found choose the one whose location looks most general
+
+3. https://elixir.bootlin.com, use 4.18

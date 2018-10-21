@@ -1,0 +1,80 @@
+From 21cf89b5a128b6a3390efd6c160f67edfde20fa9 Mon Sep 17 00:00:00 2001
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Date: Fri, 31 Aug 2018 11:53:36 +0200
+Subject: [PATCH] Revert "irqdomain: Don't set type when mapping an IRQ"
+
+This reverts commit 1e2a7d78499ec8859d2b469051b7b80bad3b08aa.
+
+This makes ARM QEMU vexpress platform work again.
+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+---
+ include/linux/irqdomain.h |  3 ---
+ kernel/irq/irqdomain.c    | 23 +++++------------------
+ 2 files changed, 5 insertions(+), 21 deletions(-)
+
+diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
+index dccfa65..e93742d 100644
+--- a/include/linux/irqdomain.h
++++ b/include/linux/irqdomain.h
+@@ -526,9 +526,6 @@ static inline int irq_domain_alloc_irqs(struct irq_domain *domain,
+ 	return -1;
+ }
+ 
+-static inline void irq_domain_free_irqs(unsigned int virq,
+-					unsigned int nr_irqs) { }
+-
+ static inline bool irq_domain_is_hierarchy(struct irq_domain *domain)
+ {
+ 	return false;
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index 5d9fc01b..75f175b 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -744,7 +744,6 @@ static void of_phandle_args_to_fwspec(struct of_phandle_args *irq_data,
+ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
+ {
+ 	struct irq_domain *domain;
+-	struct irq_data *irq_data;
+ 	irq_hw_number_t hwirq;
+ 	unsigned int type = IRQ_TYPE_NONE;
+ 	int virq;
+@@ -792,11 +791,7 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
+ 		 * it now and return the interrupt number.
+ 		 */
+ 		if (irq_get_trigger_type(virq) == IRQ_TYPE_NONE) {
+-			irq_data = irq_get_irq_data(virq);
+-			if (!irq_data)
+-				return 0;
+-
+-			irqd_set_trigger_type(irq_data, type);
++			irq_set_irq_type(virq, type);
+ 			return virq;
+ 		}
+ 
+@@ -816,18 +811,10 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
+ 			return virq;
+ 	}
+ 
+-	irq_data = irq_get_irq_data(virq);
+-	if (!irq_data) {
+-		if (irq_domain_is_hierarchy(domain))
+-			irq_domain_free_irqs(virq, 1);
+-		else
+-			irq_dispose_mapping(virq);
+-		return 0;
+-	}
+-
+-	/* Store trigger type */
+-	irqd_set_trigger_type(irq_data, type);
+-
++	/* Set type if specified and different than the current one */
++	if (type != IRQ_TYPE_NONE &&
++	    type != irq_get_trigger_type(virq))
++		irq_set_irq_type(virq, type);
+ 	return virq;
+ }
+ EXPORT_SYMBOL_GPL(irq_create_fwspec_mapping);
+-- 
+1.9.1
+

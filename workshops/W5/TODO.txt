@@ -1,0 +1,18 @@
+1. Analyze, compile and deploy ”Hello, world” written in ARM assembly
+
+See hello.S
+
+use the provided compile_hello.sh
+
+__NR_write
+__NR_exit
+
+symbolic numbers of write and exit syscalls
+
+necessary ARM assembly:
+
+mov rX, <immediate>	-	store <immediate> value in register rX
+ldr rX, <address>	-	store <address> value in register rX
+svc <immediate>		-	trigger software interrupt number <immediate>
+
+2. Run it in the virtual machine

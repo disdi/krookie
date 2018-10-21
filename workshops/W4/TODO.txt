@@ -1,0 +1,11 @@
+1. Analyze krg.c
+
+2. Fill the blanks as instructed inline
+
+3. Compile and deploy the module
+
+Remember about ARCH=arm and CROSS_COMPILE=arm-linux-gnueabi-
+
+4. Test your module
+	Try inserting and removing it several times
+	Try using the ’number’ module parameter

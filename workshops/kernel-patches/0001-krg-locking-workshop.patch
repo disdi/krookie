@@ -1,0 +1,155 @@
+From cb1d564a98486d331f9fb164e8d266d9aedd0cd8 Mon Sep 17 00:00:00 2001
+From: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+Date: Fri, 5 Oct 2018 10:08:49 +0200
+Subject: [PATCH] krg locking workshop
+
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+---
+ arch/arm/kernel/sys_arm.c  | 116 +++++++++++++++++++++++++++++++++++++++++++++
+ arch/arm/tools/syscall.tbl |   2 +
+ 2 files changed, 118 insertions(+)
+
+diff --git a/arch/arm/kernel/sys_arm.c b/arch/arm/kernel/sys_arm.c
+index bdf7514..072cc11 100644
+--- a/arch/arm/kernel/sys_arm.c
++++ b/arch/arm/kernel/sys_arm.c
+@@ -27,6 +27,9 @@
+ #include <linux/ipc.h>
+ #include <linux/uaccess.h>
+ #include <linux/slab.h>
++#include <linux/semaphore.h>
++#include <linux/mutex.h>
++#include <linux/list.h>
+ 
+ /*
+  * Since loff_t is a 64 bit type we avoid a lot of ABI hassle
+@@ -37,3 +40,116 @@ asmlinkage long sys_arm_fadvise64_64(int fd, int advice,
+ {
+ 	return ksys_fadvise64_64(fd, offset, len, advice);
+ }
++
++/******************* Kernel Rookie Guide OSSEU'18 Edinburgh *******************/
++#define KRG_BUF_SIZE			13
++
++struct krg_job {
++	struct list_head	entry;
++	int			id;
++};
++
++static struct semaphore krg_empty_count = __SEMAPHORE_INITIALIZER(krg_empty_count, KRG_BUF_SIZE);
++static struct semaphore krg_fill_count = __SEMAPHORE_INITIALIZER(krg_fill_count, 0);
++
++static LIST_HEAD(krg_jobs);
++static DEFINE_MUTEX(krg_mutex);
++
++SYSCALL_DEFINE1(krg_put, int, id)
++{
++	struct krg_job *job;
++
++	job = NULL;
++	/*
++	 * TODO: allocate struct krg_job
++	 * use kzalloc()
++	 */
++	if (!job)
++		return -ENOMEM;
++
++	/* TODO: set job id */
++
++	/*
++	 * TODO: decrement empty count, use
++	 *
++	 * if (down_interruptible()) {
++	 * 	TODO: avoid memory leak
++	 * 	use kfree()
++	 *
++	 * 	// upper layers can handle retrying
++	 * 	return -ERESTARTSYS;
++	 * }
++	 */
++
++	/*
++	 * TODO: ensure only one process accesses the buffer
++	 * use mutex_lock()
++	 */
++
++	printk("> put:%d\n", job->id);
++
++	/*
++	 * TODO: add job to the list
++	 * use list_add_tail()
++	 */
++
++	/*
++	 * TODO: let other processes access the buffer
++	 * use mutex_unlock()
++	 */
++
++	/*
++	 * TODO: increment fill count
++	 * use up()
++	 */
++
++	return 0;
++}
++
++SYSCALL_DEFINE0(krg_get)
++{
++	struct krg_job *job;
++	int ret;
++
++	/*
++	 * TODO: decrement fill count, use
++	 * if (down_interruptible())
++	 * 	return -ERESTARTSYS;
++	 */
++
++	/*
++	 * TODO: ensure only one process accesses the buffer
++	 * use mutex_lock()
++	 */
++
++	/*
++	 * TODO: let 'job' point to the first element of the buffer
++	 * use job = list_first_entry()
++	 */
++
++	printk("< get:%d\n", job->id);
++
++	ret = job->id;
++
++	/*
++	 * TODO: remove the element from the buffer
++	 * use list_del()
++	 */
++
++	/*
++	 * TODO: avoid memory leak
++	 * use kfree()
++	 */
++
++	/*
++	 * TODO: let other processes access the buffer
++	 * use mutex_unlock()
++	 */
++
++	/*
++	 * TODO: increment empty count
++	 * use up()
++	 */
++
++	return ret;
++}
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index fbc74b5..febf960 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -413,3 +413,5 @@
+ 396	common	pkey_free		sys_pkey_free
+ 397	common	statx			sys_statx
+ 398	common	rseq			sys_rseq
++399	eabi	krg_put			sys_krg_put
++400	eabi	krg_get			sys_krg_get
+-- 
+2.7.4
+

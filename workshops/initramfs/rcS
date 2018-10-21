@@ -1,0 +1,9 @@
+#!/busybox-armv7r sh
+
+/busybox-armv7r --install
+
+mount -t proc none /proc
+mount -t sysfs none /sys
+
+mdev -s
+echo /sbin/mdev > /proc/sys/kernel/hotplug

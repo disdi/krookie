@@ -1,0 +1,34 @@
+From 3aae8f646785afab58f2195111d6280029af7ac0 Mon Sep 17 00:00:00 2001
+From: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+Date: Fri, 17 Aug 2018 13:58:36 +0200
+Subject: [PATCH] kbuild: make sorting initramfs contents independent of locale
+
+Some LANG values (e.g. pl_PL.UTF-8) cause the sort command to output
+files before their parent directories, which makes them inaccessible for
+the kernel. In other words, when the kernel populates the rootfs, it is
+unable to create files whose parent directories have not been yet created.
+
+This patch makes sorting use the default (LANG=C) locale, which results in
+correctly laid out initramfs images (parent directories before files).
+
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+---
+ scripts/gen_initramfs_list.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/gen_initramfs_list.sh b/scripts/gen_initramfs_list.sh
+index 10e528b..0aad760 100755
+--- a/scripts/gen_initramfs_list.sh
++++ b/scripts/gen_initramfs_list.sh
+@@ -174,7 +174,7 @@ dir_filelist() {
+ 	${dep_list}header "$1"
+ 
+ 	srcdir=$(echo "$1" | sed -e 's://*:/:g')
+-	dirlist=$(find "${srcdir}" -printf "%p %m %U %G\n" | sort)
++	dirlist=$(find "${srcdir}" -printf "%p %m %U %G\n" | LANG=C sort)
+ 
+ 	# If $dirlist is only one line, then the directory is empty
+ 	if [  "$(echo "${dirlist}" | wc -l)" -gt 1 ]; then
+-- 
+2.7.4
+
